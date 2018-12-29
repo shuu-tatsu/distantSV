@@ -1,0 +1,10 @@
+'''
+if __name__ == '__main__':
+    source_file = 'ctd_meshsupp_vocab.txt'
+    target_file = 'chemdner_eval_vocab.txt'
+    main(source_file, target_file)
+'''
+
+ctd_meshsupp_vocab.txt:195697
+chemdner_eval_vocab.txt:6801
+target:4502, collocation:2299, source:193398

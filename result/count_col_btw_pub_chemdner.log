@@ -1,0 +1,9 @@
+'''
+if __name__ == '__main__':
+    source_file = 'pub_vocab.txt'
+    target_file = 'chemdner_train_vocab.txt'
+    main(source_file, target_file)
+'''
+pub_vocab.txt:297920350
+chemdner_train_vocab.txt:7672
+target:7131, collocation:541, source:297919809
