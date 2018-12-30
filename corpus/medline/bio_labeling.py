@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from tqdm import tqdm
+
+
 def preprocessing(sentence):
     sentence = sentence.replace(', ', ' , ')
     sentence = sentence.replace('. ', ' . ')
@@ -46,15 +52,22 @@ def bio_labeling(abs_sent, start_index, ne, labeled_token_list, ne_no, last_ne_n
 
 
 def o_labeling(token_list):
-    return [token + ' O' for token in token_list]
+    labeled_token_list = []
+    for token in token_list:
+        if len(token) > 0:
+            string = token + '\tO'
+        else:
+            string = token
+        labeled_token_list.append(string)
+    return labeled_token_list
 
 
 def bi_labeling(token_list):
     for i, token in enumerate(token_list):
         if i == 0:
-            string = token + ' B'
+            string = token + '\tB'
         else:
-            string = token + ' I'
+            string = token + '\tI'
         labeled_token_list.append(string)
     return labeled_token_list
 
@@ -66,12 +79,21 @@ l[213:228]
 'chloramphenicol'
 '''
 
+def write_file(w, token_list):
+    for token in token_list:
+        w.write(token)
+        w.write('\n')
+
+
+ne_sent_only = True
+
 with open('id_valid.txt', 'r') as r1, open('id_valid_anno_.txt', 'r') as r2:
     absts = [line.split('\t') for line in r1]
     annos = [line.strip('\n').split('\t') for line in r2]
     ne_abs_id_list = [int(i[0]) for i in annos]
 
-for abs_id, abs_sent in absts:
+w = open('valid_conllform.txt', 'w')
+for abs_id, abs_sent in tqdm(absts):
     if judge(ne_abs_id_list, int(abs_id)):
         #This abst includes NE.
         ne_index_list = [i for i, ne_abs_id in enumerate(ne_abs_id_list) if ne_abs_id == int(abs_id)]
@@ -87,11 +109,16 @@ for abs_id, abs_sent in absts:
         last_ne_no = len(ne_index_list)
         for ne_no, ne_index in enumerate(ne_index_list):
             labeled_token_list, start_index = bio_labeling(abs_sent, start_index, annos[ne_index], labeled_token_list, ne_no, last_ne_no)
-        print(labeled_token_list)
+        write_file(w, labeled_token_list)
     else:
         #This abst does not include NE.
-        print('No NE sentence')
+        if ne_sent_only:
+            pass
+        else:
+            labeled_token_list = o_labeling(preprocessing(abs_sent))
+            write_file(w, labeled_token_list)
 
+w.close()
 
 '''
 absts:
