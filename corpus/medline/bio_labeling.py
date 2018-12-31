@@ -27,7 +27,26 @@ def o_token_processing(s_index, e_index, abs_sent):
     else:
         sentence = abs_sent[s_index:e_index]
     token_list = preprocessing(sentence)
-    return token_list
+
+    if len(token_list[0]) == 0:
+        return token_list[1:]
+    else:
+       return token_list
+
+
+def update_start_index(ne_end_index, char_or_space):
+    #NE後がスペースか文字かで分岐
+    if char_or_space != ' ':
+        #print('################')
+        #print(char_or_space)
+        #print(len(char_or_space))
+        #print(type(char_or_space))
+        #print('################')
+        #文字なら次ステップへ伝達
+        return ne_end_index
+    else:
+        #スペースなら切り捨てる
+        return ne_end_index+1
 
 
 def bio_labeling(abs_sent, start_index, ne, labeled_token_list, ne_no, last_ne_no):
@@ -46,17 +65,20 @@ def bio_labeling(abs_sent, start_index, ne, labeled_token_list, ne_no, last_ne_n
     #print('ne_token_list:{}'.format(ne_token_list))
     labeled_token_list.extend(bi_labeling(ne_token_list))
     #print('labeled_token_list:{}'.format(labeled_token_list))
+
+    next_start_index = update_start_index(ne_end_index, abs_sent[ne_end_index])
+
     if ne_no == last_ne_no:
         #NE以外のセンテンス処理
         #print('#NE以外のセンテンス処理 in last')
-        o_token_list = o_token_processing(ne_end_index+1, 'end', abs_sent)
+        o_token_list = o_token_processing(next_start_index, 'end', abs_sent)
         #print('o_token_list:{}'.format(o_token_list))
         labeled_token_list.extend(o_labeling(o_token_list))
         #print('labeled_token_list:{}'.format(labeled_token_list))
         #print('\n\n')
-        return labeled_token_list, -1
+        return labeled_token_list, 'end'
 
-    return labeled_token_list, ne_end_index+1
+    return labeled_token_list, next_start_index
 
 
 def o_labeling(token_list):
@@ -129,12 +151,12 @@ for abs_id, abs_sent in tqdm(absts):
         ne_index_list:
         [52, 53, 54]
         '''
-        start_index = 0
+        next_start_index = 0
         labeled_token_list = [] #ラベル付けされたセンテンスを格納するリスト
         last_ne_no = len(ne_index_list)
         for i, ne_index in enumerate(ne_index_list):
             ne_no = i + 1
-            labeled_token_list, start_index = bio_labeling(abs_sent, start_index, annos[ne_index], labeled_token_list, ne_no, last_ne_no)
+            labeled_token_list, next_start_index = bio_labeling(abs_sent, next_start_index, annos[ne_index], labeled_token_list, ne_no, last_ne_no)
         write_file(w, labeled_token_list)
     else:
         #This abst does not include NE.
