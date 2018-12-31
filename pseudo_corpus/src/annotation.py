@@ -97,42 +97,20 @@ def labeling_id(target_file, train_file, dev_file, eval_file):
                 sentence_id += 1
 
 '''
-[['1', 'Primer extension and subsequent PCR amplification of these in vitro transcripts revealed gamma-thio-ATP-dependent, but no beta-thio-ATP-dependent, signals, although affinity labelling of overall in vitro transcripts still occurred with beta-thio-ATP.'], ['2', 'We conclude that the described plant nuclei reinitiated transcription non-specifically and that post-transcriptional transfer of the gamma-thio affinity label severely interfered with the detection of reinitiated transcripts..'], ['3', 'The location of gene expression of the Agrobacterium tumefaciens ipt gene promoter in transgenic tobacco plants was examined using the beta-glucuronidase (GUS) reporter gene.']]
+[['1', 'Primer extension and subsequent PCR amplification of these in vitro transcripts revealed gamma-thio-ATP-dependent, but no beta-thio-ATP-dependent, signals, although affinity labelling of overall in vitro transcripts still occurred with beta-thio-ATP.\n'], ['2', 'We conclude that the described plant nuclei reinitiated transcription non-specifically and that post-transcriptional transfer of the gamma-thio affinity label severely interfered with the detection of reinitiated transcripts..\n'], ['3', 'The location of gene expression of the Agrobacterium tumefaciens ipt gene promoter in transgenic tobacco plants was examined using the beta-glucuronidase (GUS) reporter gene.\n']]
 [['6', 'Chloramphenicol', '213', '228'], ['10', 'NADP', '32', '36'], ['16', 'Amino Acids', '32', '43']]
 '''
-class ConllConverter():
-
-    def __init__(self, id_file, anno_file):
-        self.id_file = id_file
-        self.anno_file = anno_file
-
-    def convert(self):
-        abst_list = load_id(self.id_file)
-        ne_list = load_anno(self.anno_file)
-
-
-
-def load_id(id_file):
-    with open(id_file, 'r') as r:
-        abst_list = [abst.strip('\n').split('\t') for abst in r]
-    return abst_list
-
-
-def load_anno(anno_file):
-    with open(anno_file, 'r') as r:
-        ne_list = [ne.strip('\n').split('\t') for ne in r]
-    return ne_list
 
 
 def main(TARGET_FILE, DICT_FILE):
-    make_id_corpus = False
+    make_id_corpus = True
     if make_id_corpus:
         TRAIN_FILE = TARGET_FILE + 'train.txt' 
         DEV_FILE = TARGET_FILE + 'valid.txt'
         EVAL_FILE = TARGET_FILE + 'test.txt'
         labeling_id(TARGET_FILE, TRAIN_FILE, DEV_FILE, EVAL_FILE)
 
-    make_anno_corpus = False
+    make_anno_corpus = True
     if make_anno_corpus:
         TRAIN_FILE = TARGET_FILE + 'id_train.txt' 
         DEV_FILE = TARGET_FILE + 'id_valid.txt'
@@ -141,23 +119,6 @@ def main(TARGET_FILE, DICT_FILE):
         anno = Annotation(TRAIN_FILE, DEV_FILE, EVAL_FILE, DICT_FILE)
         anno.devide_vocab()
         anno.make_annotation()
-
-    make_conll_format = True
-    if make_conll_format:
-        TRAIN_ID_FILE = TARGET_FILE + 'id_train.txt' 
-        DEV_ID_FILE = TARGET_FILE + 'id_valid.txt'
-        EVAL_ID_FILE = TARGET_FILE + 'id_test.txt'
-
-        TRAIN_ANNO_FILE = TARGET_FILE + 'id_train_anno_.txt' 
-        DEV_ANNO_FILE = TARGET_FILE + 'id_valid_anno_.txt'
-        EVAL_ANNO_FILE = TARGET_FILE + 'id_test_anno_.txt'
-
-        #train_converter = ConllConverter(TRAIN_ID_FILE, TRAIN_ANNO_FILE)
-        #train_converter.convert()
-        dev_converter = ConllConverter(DEV_ID_FILE, DEV_ANNO_FILE)
-        dev_converter.convert()
-        #eval_converter = ConllConverter(EVAL_ID_FILE, EVAL_ANNO_FILE)
-        #eval_converter.convert()
 
 
 if __name__ == '__main__':
