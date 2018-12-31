@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from tqdm import tqdm
-
+import sys
 
 def preprocessing(sentence):
     sentence = sentence.replace(', ', ' , ')
@@ -95,18 +95,28 @@ def write_file(w, token_list):
         w.write('\n')
 
 
+'''
+コマンドライン引数には0~101の数字を入れる
+'''
 ne_sent_only = True
 
-with open('id_test.txt', 'r') as r1, open('id_test_anno_.txt', 'r') as r2:
+args = sys.argv
+id_train_file = '/cl/work/shusuke-t/distantSV/corpus/medline/dir_id_train/split_id_' + str(args[1]) + '.txt'
+id_train_anno_file = '/cl/work/shusuke-t/distantSV/corpus/medline/dir_id_train_anno/split_anno_' + str(args[1]) + '.txt'
+train_conllform_file = '/cl/work/shusuke-t/distantSV/corpus/medline/conllform/dir_train_conllform/train_conllform_' + str(args[1]) + '.txt'
+
+#with open('id_test.txt', 'r') as r1, open('id_test_anno_.txt', 'r') as r2:
 #with open('id_valid.txt', 'r') as r1, open('id_valid_anno_.txt', 'r') as r2:
 #with open('id_train.txt', 'r') as r1, open('id_train_anno_.txt', 'r') as r2:
+with open(id_train_file, 'r') as r1, open(id_train_anno_file, 'r') as r2:
     absts = [line.split('\t') for line in r1]
     annos = [line.strip('\n').split('\t') for line in r2]
     ne_abs_id_list = [int(i[0]) for i in annos]
 
-w = open('test_conllform.txt', 'w')
+#w = open('test_conllform.txt', 'w')
 #w = open('valid_conllform.txt', 'w')
 #w = open('train_conllform.txt', 'w')
+w = open(train_conllform_file, 'w')
 for abs_id, abs_sent in tqdm(absts):
     #print('abs_sent:{}'.format(abs_sent))
     if judge(ne_abs_id_list, int(abs_id)):
