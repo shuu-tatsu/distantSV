@@ -15,13 +15,17 @@ class ErrorAnalyzer():
         self.FP_known_error = 0
         self.FP_unk_error = 0
 
+        self.NO_sets_Gold = 0
+        self.NO_sets_FN = 0
+        self.NO_sets_FP = 0
+
     def count_gold(self, word):
         if word in self.known_ne_set:
             self.known_occurrences += 1
         elif word in self.unk_ne_set:
             self.unk_occurrences += 1
         else:
-            print('No both sets in count_gold')
+            self.NO_sets_Gold += 1
 
     def count(self):
         for output in self.result_output_list:
@@ -47,7 +51,7 @@ class ErrorAnalyzer():
         elif word in self.unk_ne_set:
             self.FN_unk_error += 1
         else:
-            print('No both sets in count_FN')
+            self.NO_sets_FN += 1
 
     def count_FP_error(self, word):
         if word in self.known_ne_set:
@@ -55,7 +59,7 @@ class ErrorAnalyzer():
         elif word in self.unk_ne_set:
             self.FP_unk_error += 1
         else:
-            print('No both sets in count_FP')
+            self.NO_sets_FP += 1
 
     def get_error_probability(self):
         #FN error
@@ -106,13 +110,18 @@ def division(denominator, numerator):
 
 
 def main():
+    args = sys.argv
+    '''
     data_folder = '/cl/work/shusuke-t/distantSV/corpus/medline/conllform/'
     TRAIN_FILE = data_folder + 'cross_validation/train_conllform_1and2.txt'
     DEV_FILE = data_folder + 'cross_validation/train_conllform_3.txt'
     TEST_FILE = data_folder + 'full_test_conllform.txt'
-    #RESULT_FILE = '/cl/work/shusuke-t/flair_myLM_normal/resources/taggers/cross_validation_log_full_baseline/test.tsv'
     RESULT_FILE = '/cl/work/shusuke-t/flair_myLM_normal/resources/taggers/cross_validation_log_full_tp_0107/test.tsv'
-    #RESULT_FILE = '/cl/work/shusuke-t/flair_myLM_normal/resources/taggers/cross_validation_log_baseline/test.tsv'
+    '''
+    TRAIN_FILE = args[1]
+    DEV_FILE = args[2]
+    TEST_FILE = args[3]
+    RESULT_FILE = args[4]
 
     known_ne = Vocabulary([TRAIN_FILE, DEV_FILE])
     print('Known NE set size: {}'.format(known_ne.vocab_size))
@@ -125,6 +134,9 @@ def main():
     print('Unk occurrences: {}'.format(analyser.unk_occurrences))
     print('FN known error prob: {} FN unk error prob: {}'.format(analyser.FN_known_error_prob, analyser.FN_unk_error_prob))
     print('FP known error prob: {} FP unk error prob: {}'.format(analyser.FP_known_error_prob, analyser.FP_unk_error_prob))
+    print('NO sets Gold: {}'.format(analyser.NO_sets_Gold))
+    print('NO sets FN: {}'.format(analyser.NO_sets_FN))
+    print('NO sets FP: {}'.format(analyser.NO_sets_FP))
 
 
 if __name__ == '__main__':
