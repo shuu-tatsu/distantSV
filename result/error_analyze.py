@@ -20,6 +20,7 @@ class ErrorAnalyzer():
         self.NO_sets_FP = 0
 
     def count_gold(self, word):
+        import pdb; pdb.set_trace()
         if word in self.known_ne_set:
             self.known_occurrences += 1
         elif word in self.unk_ne_set:
@@ -111,27 +112,28 @@ def division(denominator, numerator):
 
 def main():
     args = sys.argv
-    '''
-    data_folder = '/cl/work/shusuke-t/distantSV/corpus/medline/conllform/'
-    TRAIN_FILE = data_folder + 'cross_validation/train_conllform_1and2.txt'
-    DEV_FILE = data_folder + 'cross_validation/train_conllform_3.txt'
-    TEST_FILE = data_folder + 'full_test_conllform.txt'
-    RESULT_FILE = '/cl/work/shusuke-t/flair_myLM_normal/resources/taggers/cross_validation_log_full_tp_0107/test.tsv'
-    '''
     TRAIN_FILE = args[1]
     DEV_FILE = args[2]
     TEST_FILE = args[3]
     RESULT_FILE = args[4]
 
+    # Prepare Vocab
     known_ne = Vocabulary([TRAIN_FILE, DEV_FILE])
     print('Known NE set size: {}'.format(known_ne.vocab_size))
-    unk_ne = Vocabulary([TEST_FILE])
-    print('Unk NE set size: {}'.format(unk_ne.vocab_size))
+    test_occurrences_ne = Vocabulary([TEST_FILE])
+    print('Test occurrences NE set size: {}'.format(test_occurrences_ne.vocab_size))
+    known_ne_and_test_occurrences_ne = known_ne.vocab_set & test_occurrences_ne.vocab_set
+    unk_ne_vocab_set = test_occurrences_ne.vocab_set - known_ne.vocab_set
+    print('Known NE & Test occurrences size: {}'.format(len(known_ne_and_test_occurrences_ne)))
+    print('Unk NE in Test occurrences size: {}'.format(len(unk_ne_vocab_set)))
+    print('')
 
-    analyser = ErrorAnalyzer(known_ne.vocab_set, unk_ne.vocab_set, [RESULT_FILE])
+    # Analyze
+    analyser = ErrorAnalyzer(known_ne_and_test_occurrences_ne, unk_ne_vocab_set, [RESULT_FILE])
     analyser.count()
     print('Known occurrences: {}'.format(analyser.known_occurrences))
     print('Unk occurrences: {}'.format(analyser.unk_occurrences))
+    print('')
     print('FN known error prob: {} FN unk error prob: {}'.format(analyser.FN_known_error_prob, analyser.FN_unk_error_prob))
     print('FP known error prob: {} FP unk error prob: {}'.format(analyser.FP_known_error_prob, analyser.FP_unk_error_prob))
     print('NO sets Gold: {}'.format(analyser.NO_sets_Gold))
