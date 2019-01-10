@@ -15,18 +15,17 @@ class ErrorAnalyzer():
         self.FP_known_error = 0
         self.FP_unk_error = 0
 
-        self.NO_sets_Gold = 0
-        self.NO_sets_FN = 0
-        self.NO_sets_FP = 0
+        self.gold_others_occurrences = 0
+        self.FN_others_error = 0
+        self.FP_others_error = 0
 
     def count_gold(self, word):
-        import pdb; pdb.set_trace()
         if word in self.known_ne_set:
             self.known_occurrences += 1
         elif word in self.unk_ne_set:
             self.unk_occurrences += 1
         else:
-            self.NO_sets_Gold += 1
+            self.gold_others_occurrences += 1
 
     def count(self):
         for output in self.result_output_list:
@@ -52,7 +51,7 @@ class ErrorAnalyzer():
         elif word in self.unk_ne_set:
             self.FN_unk_error += 1
         else:
-            self.NO_sets_FN += 1
+            self.FN_others_error += 1
 
     def count_FP_error(self, word):
         if word in self.known_ne_set:
@@ -60,20 +59,31 @@ class ErrorAnalyzer():
         elif word in self.unk_ne_set:
             self.FP_unk_error += 1
         else:
-            self.NO_sets_FP += 1
+            self.FP_others_error += 1
 
     def get_error_probability(self):
+        self.total_error = self.FN_known_error + self.FN_unk_error +\
+                           self.FP_known_error + self.FP_unk_error +\
+                           self.gold_others_occurrences + self.FN_others_error + self.FP_others_error
         #FN error
         #Known error
         self.FN_known_error_prob = division(self.FN_known_error, self.known_occurrences)
         #Unk error
         self.FN_unk_error_prob = division(self.FN_unk_error, self.unk_occurrences)
+        #NE error / total
+        self.FN_ne_error_prob = division((self.FN_known_error + self.FN_unk_error), self.total_error)
+        #Others error / total
+        self.FN_others_error_prob = division(self.FN_others_error, self.total_error)
 
         #FP error
         #Known error
         self.FP_known_error_prob = division(self.FP_known_error, self.known_occurrences)
         #Unk error
         self.FP_unk_error_prob = division(self.FP_unk_error, self.unk_occurrences)
+        #NE error / total
+        self.FP_ne_error_prob = division((self.FP_known_error + self.FP_unk_error), self.total_error)
+        #Others error / total
+        self.FP_others_error_prob = division(self.FP_others_error, self.total_error)
 
 
 class Vocabulary():
@@ -134,11 +144,12 @@ def main():
     print('Known occurrences: {}'.format(analyser.known_occurrences))
     print('Unk occurrences: {}'.format(analyser.unk_occurrences))
     print('')
-    print('FN known error prob: {} FN unk error prob: {}'.format(analyser.FN_known_error_prob, analyser.FN_unk_error_prob))
-    print('FP known error prob: {} FP unk error prob: {}'.format(analyser.FP_known_error_prob, analyser.FP_unk_error_prob))
-    print('NO sets Gold: {}'.format(analyser.NO_sets_Gold))
-    print('NO sets FN: {}'.format(analyser.NO_sets_FN))
-    print('NO sets FP: {}'.format(analyser.NO_sets_FP))
+    print('#FN')
+    print('FN known error / known occur: {0:.3f}    FN unk error / unk occur: {1:.3f} \nFN ne error / total:{2:.3f}    FN others error / total: {3:.3f}'.format(
+           analyser.FN_known_error_prob, analyser.FN_unk_error_prob, analyser.FN_ne_error_prob, analyser.FN_others_error_prob))
+    print('#FP')
+    print('FP known error / known occur: {0:.3f}    FP unk error / unk occur: {1:.3f} \nFP ne error / total:{2:.3f}    FP others error / total: {3:.3f}'.format(
+           analyser.FP_known_error_prob, analyser.FP_unk_error_prob, analyser.FP_ne_error_prob, analyser.FP_others_error_prob))
 
 
 if __name__ == '__main__':
