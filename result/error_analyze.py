@@ -144,6 +144,7 @@ def main():
     print('Known occurrences: {}'.format(analyser.known_occurrences))
     print('Unk occurrences: {}'.format(analyser.unk_occurrences))
     print('')
+    print('Total Error: {}'.format(analyser.total_error))
     print('#FN')
     print('FN known error / known occur: {0:.3f}    FN unk error / unk occur: {1:.3f} \nFN ne error / total:{2:.3f}    FN others error / total: {3:.3f}'.format(
            analyser.FN_known_error_prob, analyser.FN_unk_error_prob, analyser.FN_ne_error_prob, analyser.FN_others_error_prob))
